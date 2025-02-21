@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sui Distribution Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold mb-2">Sui Distribution Tracker</h1>
+            <p class="text-gray-400">Tracking distributions from contract: 0x98af...a564</p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <div class="flex gap-4">
+                <input type="text" 
+                       id="searchInput" 
+                       placeholder="Enter wallet address to search" 
+                       class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="searchBtn" 
+                        class="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-lg flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Latest Distribution -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Latest Distribution</h2>
+                <button id="refreshBtn" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+                    Refresh Data
+                </button>
+            </div>
+            <div id="loading" class="loading mx-auto hidden"></div>
+            <div id="error" class="bg-red-500/20 border border-red-500 p-4 rounded-lg hidden"></div>
+            <div id="transactionData"></div>
+        </div>
+
+        <!-- Wallet Activity -->
+        <div id="walletActivity" class="bg-gray-800 rounded-lg p-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">Wallet Activity</h2>
+            <div id="walletLoading" class="loading mx-auto hidden"></div>
+            <div id="walletError" class="bg-red-500/20 border border-red-500 p-4 rounded-lg hidden"></div>
+            <div id="walletData"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { SuiClient } from '@mysten/sui/client';
+
+        class DistributionTracker {
+            constructor() {
+                this.client = new SuiClient({
+                    url: 'https://fullnode.mainnet.sui.io:443'
+                });
+                // Initialize DOM elements
+                this.transactionData = document.getElementById('transactionData');
+                this.loading = document.getElementById('loading');
+                this.error = document.getElementById('error');
+                this.refreshBtn = document.getElementById('refreshBtn');
+                this.searchBtn = document.getElementById('searchBtn');
+                this.searchInput = document.getElementById('searchInput');
+                this.walletActivity = document.getElementById('walletActivity');
+                this.walletData = document.getElementById('walletData');
+                this.walletLoading = document.getElementById('walletLoading');
+                this.walletError = document.getElementById('walletError');
+                
+                // Add event listeners
+                this.refreshBtn.addEventListener('click', () => this.fetchData());
+                this.searchBtn.addEventListener('click', () => this.searchWallet());
+                this.searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.searchWallet();
+                });
+            }
+
+            showLoading(show, element = this.loading) {
+                element.classList.toggle('hidden', !show);
+            }
+
+            showError(message, element = this.error) {
+                element.textContent = message;
+                element.classList.remove('hidden');
+            }
+
+            hideError(element = this.error) {
+                element.classList.add('hidden');
+            }
+
+            formatAddress(address) {
+                if (!address) return 'N/A';
+                return `${address.slice(0, 6)}...${address.slice(-4)}`;
+            }
+
+            async searchWallet() {
+                const address = this.searchInput.value.trim();
+                if (!address) {
+                    this.showError('Please enter a wallet address', this.walletError);
+                    return;
+                }
+
+                try {
+                    this.showLoading(true, this.walletLoading);
+                    this.hideError(this.walletError);
+                    this.walletActivity.classList.remove('hidden');
+
+                    // First, get all owned objects
+                    const ownedObjects = await this.client.getOwnedObjects({
+                        owner: address,
+                        options: {
+                            showType: true,
+                            showContent: true,
+                            showDisplay: true,
+                        },
+                        filter: {
+                            MatchAll: [
+                                {
+                                    Package: "0x98af8b8fde88f3c4bdf0fcedcf9afee7d10f66d480b74fb5a3a2e23dc7f5a564"
+                                }
+                            ]
+                        }
+                    });
+
+                    if (!ownedObjects.data || ownedObjects.data.length === 0) {
+                        this.walletData.innerHTML = `
+                            <div class="text-yellow-500 text-center py-4">
+                                No WAL Airdrops found in this wallet
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Filter for WALAirdrop objects
+                    const walAirdrops = ownedObjects.data.filter(obj => 
+                        obj.data?.type?.includes('airdrop::WALAirdrop')
+                    );
+
+                    if (walAirdrops.length === 0) {
+                        this.walletData.innerHTML = `
+                            <div class="text-yellow-500 text-center py-4">
+                                No WAL Airdrops found in this wallet
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Process the NFT details
+                    const nftDetails = walAirdrops.map(obj => ({
+                        objectId: obj.data.objectId,
+                        owner: address,
+                        display: obj.data.display,
+                        content: obj.data.content
+                    }));
+
+                    this.walletData.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="bg-gray-700/50 p-4 rounded-lg">
+                                <div class="text-gray-400 text-sm mb-1">Wallet Address</div>
+                                <div class="font-mono">${address}</div>
+                            </div>
+                            
+                            <div class="bg-gray-700/50 p-4 rounded-lg">
+                                <div class="text-gray-400 text-sm mb-1">WAL Airdrops Owned</div>
+                                <div class="text-2xl font-bold text-green-400">
+                                    ${walAirdrops.length} NFTs found
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700/50 p-4 rounded-lg">
+                                <div class="text-gray-400 text-sm mb-4">WAL Airdrops</div>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    ${nftDetails.map(nft => {
+                                        if (!nft) return '';
+                                        const imageUrl = nft.display?.data?.image_url || 
+                                                       nft.content?.fields?.url;
+                                        return `
+                                            <div class="bg-gray-800 rounded-lg overflow-hidden">
+                                                ${imageUrl ? `
+                                                    <img src="${imageUrl}" 
+                                                         alt="WAL Airdrop NFT" 
+                                                         class="w-full h-48 object-cover"
+                                                         onerror="this.src='https://via.placeholder.com/300x300?text=NFT+Image+Not+Found'"
+                                                    >
+                                                ` : `
+                                                    <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                                                        <span class="text-gray-400">No Image</span>
+                                                    </div>
+                                                `}
+                                                <div class="p-3">
+                                                    <div class="font-mono text-xs text-gray-400 truncate">
+                                                        ID: ${this.formatAddress(nft.objectId)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError(error.message, this.walletError);
+                } finally {
+                    this.showLoading(false, this.walletLoading);
+                }
+            }
+
+            async fetchData() {
+                try {
+                    this.showLoading(true);
+                    this.hideError();
+                    const resp = await this.client.queryTransactionBlocks({
+                        filter: {
+                            MoveFunction: {
+                                package: "0x98af8b8fde88f3c4bdf0fcedcf9afee7d10f66d480b74fb5a3a2e23dc7f5a564",
+                                module: "distribution",
+                                function: "distribute",
+                            }
+                        },
+                        options: {
+                            showEffects: true,
+                            showObjectChanges: true,
+                            showInput: true,
+                        },
+                        limit: 1,
+                    });
+
+                    if (!resp.data || resp.data.length === 0) {
+                        this.transactionData.innerHTML = `
+                            <div class="text-yellow-500 text-center py-4">
+                                No distribution transactions found
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const tx = resp.data[0];
+                    
+                    // Safely get created effects
+                    const createdEffects = tx.effects?.created || [];
+                    
+                    const walAirdrops = createdEffects.filter(effect => 
+                        effect?.objectType?.includes('airdrop::WALAirdrop')
+                    ) || [];
+
+                    // Fetch NFT details for each WALAirdrop
+                    const nftDetails = await Promise.all(
+                        walAirdrops.map(async airdrop => {
+                            try {
+                                if (!airdrop?.reference?.objectId) return null;
+                                
+                                const objectId = airdrop.reference.objectId;
+                                const object = await this.client.getObject({
+                                    id: objectId,
+                                    options: {
+                                        showContent: true,
+                                        showDisplay: true
+                                    }
+                                });
+                                return {
+                                    objectId,
+                                    owner: airdrop.owner?.AddressOwner,
+                                    display: object.data?.display,
+                                    content: object.data?.content
+                                };
+                            } catch (error) {
+                                console.error('Error fetching NFT:', error);
+                                return null;
+                            }
+                        })
+                    );
+
+                    const lockedObjects = createdEffects.filter(effect => 
+                        effect?.objectType?.includes('airdrop::Locked')
+                    ) || [];
+
+                    this.transactionData.innerHTML = `
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-700/50 p-4 rounded-lg">
+                                    <div class="text-gray-400 text-sm mb-1">Transaction ID</div>
+                                    <div class="font-mono text-sm">${this.formatAddress(tx.digest)}</div>
+                                </div>
+                                <div class="bg-gray-700/50 p-4 rounded-lg">
+                                    <div class="text-gray-400 text-sm mb-1">Timestamp</div>
+                                    <div>${new Date(parseInt(tx.effects?.timestampMs || Date.now())).toLocaleString()}</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-700/50 p-4 rounded-lg">
+                                    <div class="text-gray-400 text-sm mb-1">WAL Airdrops Created</div>
+                                    <div class="text-2xl font-bold text-green-400">${walAirdrops.length}</div>
+                                </div>
+                                <div class="bg-gray-700/50 p-4 rounded-lg">
+                                    <div class="text-gray-400 text-sm mb-1">Locked Objects Created</div>
+                                    <div class="text-2xl font-bold text-blue-400">${lockedObjects.length}</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700/50 p-4 rounded-lg">
+                                <div class="text-gray-400 text-sm mb-4">WAL Airdrops</div>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    ${nftDetails.map(nft => {
+                                        if (!nft) return '';
+                                        const imageUrl = nft.display?.data?.image_url || 
+                                                       nft.content?.fields?.url;
+                                        return `
+                                            <div class="bg-gray-800 rounded-lg overflow-hidden">
+                                                ${imageUrl ? `
+                                                    <img src="${imageUrl}" 
+                                                         alt="WAL Airdrop NFT" 
+                                                         class="w-full h-48 object-cover"
+                                                         onerror="this.src='https://via.placeholder.com/300x300?text=NFT+Image+Not+Found'"
+                                                    >
+                                                ` : `
+                                                    <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                                                        <span class="text-gray-400">No Image</span>
+                                                    </div>
+                                                `}
+                                                <div class="p-3">
+                                                    <div class="font-mono text-xs text-gray-400 truncate">
+                                                        ID: ${this.formatAddress(nft.objectId)}
+                                                    </div>
+                                                    <div class="font-mono text-xs text-gray-400 truncate">
+                                                        Owner: ${this.formatAddress(nft.owner)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError(error.message);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+        }
+
+        // Initialize when the page loads
+        const tracker = new DistributionTracker();
+        tracker.fetchData();
+    </script>
+</body>
+</html>
