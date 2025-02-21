@@ -10,8 +10,9 @@ class WalAirdropExplorer {
         this.loadingSpinner = document.querySelector('.loading-spinner');
         this.searchInput = document.getElementById('searchInput');
         this.searchButton = document.getElementById('searchButton');
+        this.clearButton = document.getElementById('clearButton');
         
-        if (!this.transactionContainer || !this.loadingSpinner || !this.searchInput || !this.searchButton) {
+        if (!this.transactionContainer || !this.loadingSpinner || !this.searchInput || !this.searchButton || !this.clearButton) {
             console.error('Could not find required DOM elements');
             return;
         }
@@ -22,6 +23,18 @@ class WalAirdropExplorer {
             if (e.key === 'Enter') {
                 this.handleSearch();
             }
+        });
+
+        // Clear button functionality
+        this.clearButton.addEventListener('click', () => {
+            this.searchInput.value = '';
+            this.clearButton.classList.add('hidden');
+            this.searchInput.focus();
+        });
+
+        // Show/hide clear button based on input content
+        this.searchInput.addEventListener('input', () => {
+            this.clearButton.classList.toggle('hidden', !this.searchInput.value);
         });
 
         // Add input animation
