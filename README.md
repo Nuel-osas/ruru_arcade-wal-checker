@@ -1,6 +1,6 @@
-# WAL Airdrop Explorer
+# WALRUS DISTRIBUTION TRACKER
 
-A web application to explore WAL Airdrops on the Sui blockchain. Users can:
+A web application to track WALRUS distributions on the Sui blockchain. Users can:
 - View the latest distribution transactions
 - Search for WAL Airdrops by wallet address
 - View NFT images and details
