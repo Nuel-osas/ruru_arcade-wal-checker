@@ -112,13 +112,15 @@ class WalAirdropExplorer {
         try {
             this.showLoading();
             
-            // Check if this is a SuiNS domain
+            // Check if this is a SuiNS domain and normalize to lowercase
             let address = searchTerm;
             if (searchTerm.toLowerCase().endsWith('.sui')) {
                 try {
-                    address = await this.resolveSuiNSDomain(searchTerm);
+                    // Always convert SuiNS domains to lowercase
+                    const normalizedDomain = searchTerm.toLowerCase();
+                    address = await this.resolveSuiNSDomain(normalizedDomain);
                     if (!address) {
-                        throw new Error(`No address found for SuiNS domain "${searchTerm}"`);
+                        throw new Error(`No address found for SuiNS domain "${normalizedDomain}"`);
                     }
                 } catch (error) {
                     this.hideLoading();
