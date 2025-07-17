@@ -33,18 +33,15 @@
     <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/10 rounded-full filter blur-3xl"></div>
     
-    <!-- Header -->
-    <header class="relative z-10 p-6">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <img src="ika-logo.png" alt="Ika Network" class="w-8 h-8">
-                <span class="text-xl font-bold">Ika Network</span>
-            </div>
-            <div id="walletAddressDisplay" class="hidden px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
-                <span class="text-sm text-gray-300">Checking: <span id="currentAddress" class="font-mono"></span></span>
-            </div>
-        </div>
-    </header>
+    <!-- Top right credit -->
+    <div class="absolute top-6 right-6 z-20">
+        <p class="text-gray-400 text-sm">made with ❤️ by RURU</p>
+    </div>
+    
+    <!-- Wallet address display (moved to top left) -->
+    <div id="walletAddressDisplay" class="hidden absolute top-6 left-6 z-20 px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
+        <span class="text-sm text-gray-300">Checking: <span id="currentAddress" class="font-mono"></span></span>
+    </div>
 
     <!-- Main Content -->
     <div class="relative z-10 max-w-6xl mx-auto px-6 py-12">
