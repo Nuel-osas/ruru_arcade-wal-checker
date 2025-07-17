@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKA Airdrop Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        ika: {
+                            pink: '#FF1A6B',
+                            purple: '#6B1AFF',
+                            dark: '#0A0B1E',
+                            darker: '#05061A',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-ika-darker text-white min-h-screen relative overflow-x-hidden">
+    <!-- Video Background -->
+    <video id="bgVideo" autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+        <source src="https://plum-defeated-leopon-866.mypinata.cloud/ipfs/bafybeiee4ldhfjxjo3ld5v4qgg4tnutyq4i2aop5o33vt7tep7gbzf3cv4" type="video/mp4">
+    </video>
+    
+    <!-- Unmute button -->
+    <button id="unmuteButton" class="absolute bottom-6 left-6 z-20 p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all group">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+        </svg>
+    </button>
+    
+    <!-- Background overlay with reduced opacity -->
+    <div class="absolute inset-0 bg-ika-darker/85 z-10"></div>
+    
+    <!-- Background gradient effects -->
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-pink-900/10 z-10"></div>
+    <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full filter blur-3xl z-10"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/5 rounded-full filter blur-3xl z-10"></div>
+    
+    <!-- Top bar container -->
+    <div class="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+            <!-- Wallet address display -->
+            <div id="walletAddressDisplay" class="hidden px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                <span class="text-sm text-gray-300">Checking: <span id="currentAddress" class="font-mono"></span></span>
+            </div>
+            
+            <!-- Credits -->
+            <div class="text-right">
+                <p class="text-gray-400 text-sm">made with ❤️ by <a href="https://x.com/4FourDummies" target="_blank" class="underline hover:text-gray-300 transition-colors">4dummies</a></p>
+                <p class="text-gray-500 text-xs mt-1">
+                    video by <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="underline hover:text-gray-400 transition-colors">Studio Mirai</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-12 overflow-x-hidden">
+        <div class="text-center mb-16">
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-none">
+                <span class="text-white">CHECK YOUR</span>
+                <span class="text-ika-pink"> FRIEND'S</span>
+            </h1>
+            <h2 class="text-5xl md:text-7xl lg:text-8xl font-black mb-12 leading-none">
+                <span class="text-ika-pink">IKA DROP</span>
+                <span class="text-white"> TODAY!</span>
+            </h2>
+            <p class="text-gray-400 text-xl max-w-3xl mx-auto mb-3">
+                Ika Protocol will reward eligible contributors with <span class="text-ika-pink font-semibold">IKA Tokens</span> at launch.
+            </p>
+            <p class="text-gray-400 text-xl max-w-3xl mx-auto">
+                Enter any Sui wallet address to check if they have received an <span class="font-semibold">IKA Airdrop NFT</span>.
+            </p>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="mb-16">
+            <div class="max-w-2xl mx-auto">
+                <div class="space-y-4">
+                    <div class="flex gap-3">
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Enter wallet address or SuiNS domain (e.g., name.sui)..." 
+                               class="flex-1 px-6 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl focus:outline-none focus:border-ika-pink focus:ring-2 focus:ring-ika-pink/20 text-white text-lg transition-all placeholder-gray-500">
+                        <button id="clearButton"
+                                class="hidden px-4 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all"
+                                title="Clear search">
+                            Clear
+                        </button>
+                    </div>
+                    <button id="searchButton" 
+                            class="w-full py-4 bg-ika-pink hover:bg-ika-pink/90 rounded-2xl transition-all text-white font-semibold text-lg shadow-lg shadow-ika-pink/25 hover:shadow-xl hover:shadow-ika-pink/30 transform hover:-translate-y-0.5">
+                        Check Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading-spinner hidden flex justify-center items-center py-12">
+            <div class="relative">
+                <div class="w-16 h-16 border-4 border-ika-pink/20 border-t-ika-pink rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-8 h-8 border-4 border-ika-purple/20 border-t-ika-purple rounded-full animate-spin"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactionDetails" class="space-y-6 overflow-x-hidden">
+            <!-- NFT cards will be populated here -->
+        </div>
+        
+    </div>
+
+    <!-- Load app.js without modules -->
+    <script src="app-mobile-fixed.js"></script>
+    <script>
+        console.log('Mobile-fixed version loaded');
+        
+        // Simple video mute/unmute - no modules needed
+        document.addEventListener('DOMContentLoaded', function() {
+            var video = document.getElementById('bgVideo');
+            var unmuteButton = document.getElementById('unmuteButton');
+            
+            if (video && unmuteButton) {
+                function toggleMute(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Mobile toggle mute called, muted:', video.muted);
+                    
+                    // Force user interaction for mobile
+                    if (video.paused) {
+                        video.play().catch(function(err) {
+                            console.log('Video play failed:', err);
+                        });
+                    }
+                    
+                    if (video.muted) {
+                        video.muted = false;
+                        unmuteButton.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+                    } else {
+                        video.muted = true;
+                        unmuteButton.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>';
+                    }
+                }
+                
+                // Mobile-friendly events
+                unmuteButton.addEventListener('touchstart', toggleMute);
+                unmuteButton.addEventListener('click', toggleMute);
+                console.log('Mobile video controls added');
+            }
+        });
+    </script>
+</body>
+</html>

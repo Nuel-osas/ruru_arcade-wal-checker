@@ -253,7 +253,7 @@ class WalAirdropExplorer {
                         <div class="group w-full">
                             <div class="flex flex-col sm:flex-row gap-4 w-full">
                                 <div class="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-ika-pink/20 cursor-pointer border border-white/10 hover:border-ika-pink/30 flex-1"
-                                 onclick="window.open('https://suivision.xyz/object/${airdrop.data.objectId}', '_blank')">
+                                 onclick="console.log('🔗 NFT onclick fired for:', '${airdrop.data.objectId}'); window.open('https://suivision.xyz/object/${airdrop.data.objectId}', '_blank'); return false;">
                                 <div class="aspect-square overflow-hidden">
                                     <img src="${imageUrl}" 
                                          alt="${name}"
@@ -292,6 +292,80 @@ class WalAirdropExplorer {
                 }).join('')}
             </div>
         `;
+        
+        // Comprehensive obstruction debugging
+        setTimeout(() => {
+            console.log('=== COMPREHENSIVE OBSTRUCTION CHECK ===');
+            
+            // Check all clickable NFT divs
+            const nftDivs = document.querySelectorAll('[onclick*="suivision"]');
+            console.log(`Found ${nftDivs.length} NFT clickable divs`);
+            
+            nftDivs.forEach((div, index) => {
+                const rect = div.getBoundingClientRect();
+                console.log(`NFT ${index + 1} position:`, {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                    visible: rect.width > 0 && rect.height > 0
+                });
+                
+                // Check center point
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // Temporarily disable pointer events to check what's underneath
+                div.style.pointerEvents = 'none';
+                const elementAtCenter = document.elementFromPoint(centerX, centerY);
+                div.style.pointerEvents = '';
+                
+                if (elementAtCenter !== div) {
+                    console.error(`🚨 NFT ${index + 1} IS OBSTRUCTED BY:`, elementAtCenter);
+                    console.log('Obstructing element:', {
+                        tagName: elementAtCenter?.tagName,
+                        className: elementAtCenter?.className,
+                        id: elementAtCenter?.id,
+                        zIndex: window.getComputedStyle(elementAtCenter).zIndex,
+                        position: window.getComputedStyle(elementAtCenter).position
+                    });
+                } else {
+                    console.log(`✅ NFT ${index + 1} is clickable`);
+                }
+                
+                // Check computed styles
+                const styles = window.getComputedStyle(div);
+                if (styles.pointerEvents === 'none') {
+                    console.error(`🚨 NFT ${index + 1} has pointer-events: none`);
+                }
+                if (parseFloat(styles.opacity) < 0.1) {
+                    console.error(`🚨 NFT ${index + 1} is nearly invisible`);
+                }
+                
+                // Add click listener to debug
+                div.addEventListener('click', (e) => {
+                    console.log(`NFT ${index + 1} click event fired`, e);
+                    console.log('Click target:', e.target);
+                    console.log('Current target:', e.currentTarget);
+                });
+            });
+            
+            // Check for any overlays
+            const overlays = document.querySelectorAll('div[class*="absolute"], div[class*="fixed"]');
+            console.log(`\nFound ${overlays.length} absolute/fixed positioned elements`);
+            
+            overlays.forEach(overlay => {
+                const rect = overlay.getBoundingClientRect();
+                if (rect.width > window.innerWidth * 0.8 && rect.height > window.innerHeight * 0.8) {
+                    console.warn('Large overlay detected:', {
+                        element: overlay,
+                        className: overlay.className,
+                        zIndex: window.getComputedStyle(overlay).zIndex,
+                        pointerEvents: window.getComputedStyle(overlay).pointerEvents
+                    });
+                }
+            });
+        }, 500);
     }
 
     renderError(error) {
