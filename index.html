@@ -59,11 +59,25 @@
             
             <!-- Video Credit Only -->
             <div class="text-right">
-                <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg transition-colors z-30 relative" onclick="console.log('🟡 Studio Mirai button clicked!');" id="studioMiraiButton">
+                <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg transition-colors z-30 relative" id="studioMiraiButton">
                     <span class="text-sm font-medium">video by Studio Mirai 🤖</span>
                 </a>
             </div>
         </div>
+    </div>
+
+    <!-- Audio Prompt -->
+    <div id="audioPrompt" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 transition-all duration-500">
+        <span class="text-2xl">🔊</span>
+        <span class="font-medium">Turn on audio for the best experience!</span>
+        <button id="audioYesBtn" class="ml-3 bg-black text-yellow-500 px-4 py-1 rounded font-semibold hover:bg-black/80 transition-colors animate-pulse shadow-lg shadow-yellow-500/50">
+            OK
+        </button>
+        <button onclick="document.getElementById('audioPrompt').style.display='none'" class="ml-2 hover:bg-black/10 rounded p-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     <!-- Main Content -->
@@ -92,7 +106,7 @@
                     <div class="flex gap-3">
                         <input type="text" 
                                id="searchInput" 
-                               placeholder="Enter wallet address or SuiNS domain (e.g., name.sui)..." 
+                               placeholder="Enter wallet address, SuiNS domain (e.g., name.sui), or @twitter..." 
                                class="flex-1 px-6 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl focus:outline-none focus:border-ika-pink focus:ring-2 focus:ring-ika-pink/20 text-white text-lg transition-all placeholder-gray-500">
                         <button id="clearButton"
                                 class="hidden px-4 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all"
@@ -131,101 +145,41 @@
     <script type="module">
         import explorer from './app.js';
         window.explorer = explorer;
-        console.log('Index.html loaded');
         
         // Video mute/unmute functionality - wait for DOM to load
         document.addEventListener('DOMContentLoaded', () => {
             const video = document.getElementById('bgVideo');
             const unmuteButton = document.getElementById('unmuteButton');
+            const audioPrompt = document.getElementById('audioPrompt');
             
-            // Debug unmute button positioning and obstruction
-            console.log('=== UNMUTE BUTTON DEBUG ===');
-            if (unmuteButton) {
-                const rect = unmuteButton.getBoundingClientRect();
-                console.log('Unmute button position:', {
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height,
-                    visible: rect.width > 0 && rect.height > 0
-                });
+            // Auto-hide audio prompt after 5 seconds
+            if (audioPrompt) {
+                setTimeout(() => {
+                    audioPrompt.style.opacity = '0';
+                    setTimeout(() => {
+                        audioPrompt.style.display = 'none';
+                    }, 500);
+                }, 5000);
                 
-                // Check what's at the button's position
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                // Temporarily hide the button to check what's underneath
-                unmuteButton.style.pointerEvents = 'none';
-                const elementAtCenter = document.elementFromPoint(centerX, centerY);
-                unmuteButton.style.pointerEvents = '';
-                
-                console.log('Element at unmute button center:', elementAtCenter);
-                if (elementAtCenter !== unmuteButton) {
-                    console.error('🚨 UNMUTE BUTTON IS OBSTRUCTED BY:', elementAtCenter);
-                    console.log('Obstructing element classes:', elementAtCenter?.className);
-                    console.log('Obstructing element z-index:', window.getComputedStyle(elementAtCenter).zIndex);
-                }
-                
-                // Check all four corners
-                const corners = [
-                    { name: 'top-left', x: rect.left, y: rect.top },
-                    { name: 'top-right', x: rect.right, y: rect.top },
-                    { name: 'bottom-left', x: rect.left, y: rect.bottom },
-                    { name: 'bottom-right', x: rect.right, y: rect.bottom }
-                ];
-                
-                corners.forEach(corner => {
-                    unmuteButton.style.pointerEvents = 'none';
-                    const elem = document.elementFromPoint(corner.x, corner.y);
-                    unmuteButton.style.pointerEvents = '';
-                    if (elem !== unmuteButton && elem !== document.body) {
-                        console.warn(`🚨 Button ${corner.name} corner blocked by:`, elem);
-                    }
-                });
-                
-                // Check z-index stack
-                const buttonZ = window.getComputedStyle(unmuteButton).zIndex;
-                console.log('Unmute button z-index:', buttonZ);
-                
-                // Find all elements with higher z-index
-                const allElements = document.querySelectorAll('*');
-                const higherElements = [];
-                allElements.forEach(el => {
-                    const z = window.getComputedStyle(el).zIndex;
-                    if (z !== 'auto' && parseInt(z) >= 20) {
-                        higherElements.push({ element: el, zIndex: z });
-                    }
-                });
-                
-                if (higherElements.length > 0) {
-                    console.log('Elements with z-index >= 20:', higherElements);
-                }
-            }
-            
-            // Check Studio Mirai button
-            const studioBtn = document.getElementById('studioMiraiButton');
-            if (studioBtn) {
-                console.log('=== STUDIO MIRAI BUTTON DEBUG ===');
-                const rect = studioBtn.getBoundingClientRect();
-                console.log('Studio Mirai button position:', {
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height,
-                    visible: rect.width > 0 && rect.height > 0
-                });
-                
-                // Check obstruction
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                studioBtn.style.pointerEvents = 'none';
-                const elementAtCenter = document.elementFromPoint(centerX, centerY);
-                studioBtn.style.pointerEvents = '';
-                
-                if (elementAtCenter !== studioBtn) {
-                    console.error('🟡 Studio Mirai button is OBSTRUCTED BY:', elementAtCenter);
-                } else {
-                    console.log('✅ Studio Mirai button is clickable');
+                // Add Yes button functionality
+                const audioYesBtn = document.getElementById('audioYesBtn');
+                if (audioYesBtn) {
+                    audioYesBtn.addEventListener('click', () => {
+                        // Unmute the video
+                        if (video && video.muted) {
+                            video.muted = false;
+                            // Update unmute button icon
+                            if (unmuteButton) {
+                                unmuteButton.innerHTML = `
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                `;
+                            }
+                        }
+                        // Hide the prompt
+                        audioPrompt.style.display = 'none';
+                    });
                 }
             }
             
@@ -237,6 +191,10 @@
                     
                     if (video.muted) {
                         video.muted = false;
+                        // Hide audio prompt when unmuting
+                        if (audioPrompt) {
+                            audioPrompt.style.display = 'none';
+                        }
                         unmuteButton.innerHTML = `
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
