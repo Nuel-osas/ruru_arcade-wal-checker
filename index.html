@@ -28,14 +28,25 @@
     </script>
 </head>
 <body class="bg-ika-darker text-white min-h-screen relative">
+    <!-- Video Background -->
+    <video autoplay loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+        <source src="29bZZsp9aifI7Mog.mp4" type="video/mp4">
+    </video>
+    
+    <!-- Background overlay with reduced opacity -->
+    <div class="absolute inset-0 bg-ika-darker/85 z-10"></div>
+    
     <!-- Background gradient effects -->
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-pink-900/20"></div>
-    <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/10 rounded-full filter blur-3xl"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-pink-900/10 z-10"></div>
+    <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full filter blur-3xl z-10"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/5 rounded-full filter blur-3xl z-10"></div>
     
     <!-- Top right credit -->
-    <div class="absolute top-6 right-6 z-20">
+    <div class="absolute top-6 right-6 z-20 text-right">
         <p class="text-gray-400 text-sm">made with ❤️ by RURU</p>
+        <p class="text-gray-500 text-xs mt-1">
+            video by <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="underline hover:text-gray-400 transition-colors">Studio Mirai</a>
+        </p>
     </div>
     
     <!-- Wallet address display (moved to top left) -->
@@ -44,7 +55,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-12">
+    <div class="relative z-20 max-w-6xl mx-auto px-6 pt-28 pb-12">
         <div class="text-center mb-16">
             <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-none">
                 <span class="text-white">CHECK YOUR</span>
