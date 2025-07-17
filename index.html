@@ -51,7 +51,7 @@
     
     <!-- Top right credit -->
     <div class="absolute top-6 right-6 z-20 text-right">
-        <p class="text-gray-400 text-sm">made with ❤️ by RURU</p>
+        <p class="text-gray-400 text-sm">made with ❤️ by <a href="https://x.com/4FourDummies" target="_blank" class="underline hover:text-gray-300 transition-colors">4dummies</a></p>
         <p class="text-gray-500 text-xs mt-1">
             video by <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="underline hover:text-gray-400 transition-colors">Studio Mirai</a>
         </p>
@@ -124,26 +124,38 @@
         window.explorer = explorer;
         console.log('Index.html loaded');
         
-        // Video mute/unmute functionality
-        const video = document.getElementById('bgVideo');
-        const unmuteButton = document.getElementById('unmuteButton');
-        
-        unmuteButton.addEventListener('click', () => {
-            if (video.muted) {
-                video.muted = false;
-                unmuteButton.innerHTML = `
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    </svg>
-                `;
-            } else {
-                video.muted = true;
-                unmuteButton.innerHTML = `
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                    </svg>
-                `;
+        // Video mute/unmute functionality - wait for DOM to load
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('bgVideo');
+            const unmuteButton = document.getElementById('unmuteButton');
+            
+            if (video && unmuteButton) {
+                // Add touch event for mobile and click for desktop
+                const toggleMute = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (video.muted) {
+                        video.muted = false;
+                        unmuteButton.innerHTML = `
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                        `;
+                    } else {
+                        video.muted = true;
+                        unmuteButton.innerHTML = `
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                            </svg>
+                        `;
+                    }
+                };
+                
+                // Support both touch and click events
+                unmuteButton.addEventListener('click', toggleMute);
+                unmuteButton.addEventListener('touchend', toggleMute);
             }
         });
     </script>
