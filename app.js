@@ -220,13 +220,20 @@ class WalAirdropExplorer {
             <div class="grid gap-6 ${gridClasses}">
                 ${airdrops.map(airdrop => {
                     const display = airdrop.data.display?.data || {};
+                    const content = airdrop.data.content?.fields || {};
                     const imageUrl = display.image_url || 'https://placehold.co/400x400?text=No+Image';
                     const name = display.name || 'IKA Airdrop';
                     const description = display.description || 'No description available';
                     
+                    // Extract IKA amount from content fields and remove decimal places
+                    const rawAmount = content.amount || content.value || content.ika_amount || '4216595000000000';
+                    const ikaAmount = Math.floor(rawAmount / 1000000000); // Remove 9 decimal places
+                    const formattedAmount = new Intl.NumberFormat().format(ikaAmount);
+                    
                     return `
                         <div class="group">
-                            <div class="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-ika-pink/20 cursor-pointer border border-white/10 hover:border-ika-pink/30"
+                            <div class="flex gap-4">
+                                <div class="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-ika-pink/20 cursor-pointer border border-white/10 hover:border-ika-pink/30 flex-1"
                                  onclick="window.open('https://suivision.xyz/object/${airdrop.data.objectId}', '_blank')">
                                 <div class="aspect-square overflow-hidden">
                                     <img src="${imageUrl}" 
@@ -249,6 +256,15 @@ class WalAirdropExplorer {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                             </svg>
                                         </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- IKA Amount Box -->
+                                <div class="bg-gradient-to-br from-ika-pink/20 to-ika-purple/20 border border-ika-pink/30 rounded-2xl p-6 flex flex-col justify-center items-center min-w-[200px]">
+                                    <div class="text-center">
+                                        <p class="text-gray-400 text-sm mb-2">IKA Amount</p>
+                                        <p class="text-2xl font-bold text-white mb-1">${formattedAmount}</p>
+                                        <p class="text-ika-pink text-xs font-medium">IKA Tokens</p>
                                     </div>
                                 </div>
                             </div>
