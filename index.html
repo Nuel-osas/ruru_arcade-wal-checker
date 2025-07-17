@@ -27,7 +27,7 @@
         }
     </script>
 </head>
-<body class="bg-ika-darker text-white min-h-screen relative">
+<body class="bg-ika-darker text-white min-h-screen relative overflow-x-hidden">
     <!-- Video Background -->
     <video id="bgVideo" autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
         <source src="https://plum-defeated-leopon-866.mypinata.cloud/ipfs/bafybeiee4ldhfjxjo3ld5v4qgg4tnutyq4i2aop5o33vt7tep7gbzf3cv4" type="video/mp4">
@@ -49,21 +49,26 @@
     <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full filter blur-3xl z-10"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/5 rounded-full filter blur-3xl z-10"></div>
     
-    <!-- Top right credit -->
-    <div class="absolute top-6 right-6 z-20 text-right">
-        <p class="text-gray-400 text-sm">made with ❤️ by <a href="https://x.com/4FourDummies" target="_blank" class="underline hover:text-gray-300 transition-colors">4dummies</a></p>
-        <p class="text-gray-500 text-xs mt-1">
-            video by <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="underline hover:text-gray-400 transition-colors">Studio Mirai</a>
-        </p>
-    </div>
-    
-    <!-- Wallet address display (moved to top left) -->
-    <div id="walletAddressDisplay" class="hidden absolute top-6 left-6 z-20 px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
-        <span class="text-sm text-gray-300">Checking: <span id="currentAddress" class="font-mono"></span></span>
+    <!-- Top bar container -->
+    <div class="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+            <!-- Wallet address display -->
+            <div id="walletAddressDisplay" class="hidden px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                <span class="text-sm text-gray-300">Checking: <span id="currentAddress" class="font-mono"></span></span>
+            </div>
+            
+            <!-- Credits -->
+            <div class="text-right">
+                <p class="text-gray-400 text-sm">made with ❤️ by <a href="https://x.com/4FourDummies" target="_blank" class="underline hover:text-gray-300 transition-colors">4dummies</a></p>
+                <p class="text-gray-500 text-xs mt-1">
+                    video by <a href="https://x.com/_StudioMirai/status/1945554962823414244" target="_blank" class="underline hover:text-gray-400 transition-colors">Studio Mirai</a>
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
-    <div class="relative z-20 max-w-6xl mx-auto px-6 pt-28 pb-12">
+    <div class="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-12 overflow-x-hidden">
         <div class="text-center mb-16">
             <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-none">
                 <span class="text-white">CHECK YOUR</span>
@@ -113,7 +118,7 @@
             </div>
         </div>
 
-        <div id="transactionDetails" class="space-y-6">
+        <div id="transactionDetails" class="space-y-6 overflow-x-hidden">
             <!-- NFT cards will be populated here -->
         </div>
         

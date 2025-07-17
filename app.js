@@ -217,9 +217,9 @@ class WalAirdropExplorer {
             return;
         }
 
-        const gridClasses = airdrops.length === 1 ? 'md:grid-cols-2' : 
-                          airdrops.length === 2 ? 'md:grid-cols-2' : 
-                          'md:grid-cols-3 lg:grid-cols-4';
+        const gridClasses = airdrops.length === 1 ? 'grid-cols-1 max-w-3xl mx-auto' : 
+                          airdrops.length === 2 ? 'grid-cols-1 xl:grid-cols-2' : 
+                          'grid-cols-1 xl:grid-cols-2';
 
         this.transactionContainer.innerHTML = `
             <div class="mb-8 text-center">
@@ -236,7 +236,7 @@ class WalAirdropExplorer {
                 </h2>
                 <p class="text-gray-400">Click on any NFT to view details on SuiVision</p>
             </div>
-            <div class="grid gap-6 ${gridClasses}">
+            <div class="grid gap-4 sm:gap-6 ${gridClasses}">
                 ${airdrops.map(airdrop => {
                     const display = airdrop.data.display?.data || {};
                     const content = airdrop.data.content?.fields || {};
@@ -250,9 +250,9 @@ class WalAirdropExplorer {
                     const formattedAmount = new Intl.NumberFormat().format(ikaAmount);
                     
                     return `
-                        <div class="group">
-                            <div class="flex gap-4">
-                                <div class="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-ika-pink/20 cursor-pointer border border-white/10 hover:border-ika-pink/30 flex-1"
+                        <div class="group w-full">
+                            <div class="flex flex-col sm:flex-row gap-4 w-full">
+                                <div class="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-ika-pink/20 cursor-pointer border border-white/10 hover:border-ika-pink/30 flex-1"
                                  onclick="window.open('https://suivision.xyz/object/${airdrop.data.objectId}', '_blank')">
                                 <div class="aspect-square overflow-hidden">
                                     <img src="${imageUrl}" 
@@ -279,7 +279,7 @@ class WalAirdropExplorer {
                                 </div>
                                 
                                 <!-- IKA Amount Box -->
-                                <div class="bg-gradient-to-br from-ika-pink/20 to-ika-purple/20 border border-ika-pink/30 rounded-2xl p-6 flex flex-col justify-center items-center min-w-[200px]">
+                                <div class="bg-gradient-to-br from-ika-pink/20 to-ika-purple/20 border border-ika-pink/30 rounded-2xl p-6 flex flex-col justify-center items-center w-full sm:w-auto sm:min-w-[180px] lg:min-w-[200px]">
                                     <div class="text-center">
                                         <p class="text-gray-400 text-sm mb-2">IKA Amount</p>
                                         <p class="text-2xl font-bold text-white mb-1">${formattedAmount}</p>
