@@ -10,6 +10,7 @@ class WalAirdropExplorer {
         this.loadingSpinner = document.querySelector('.loading-spinner');
         this.searchInput = document.getElementById('searchInput');
         this.searchButton = document.getElementById('searchButton');
+        this.clearButton = document.getElementById('clearButton');
         this.walletAddressDisplay = document.getElementById('walletAddressDisplay');
         this.currentAddress = document.getElementById('currentAddress');
         
@@ -25,6 +26,24 @@ class WalAirdropExplorer {
                 this.handleSearch();
             }
         });
+
+        // Clear button functionality
+        if (this.clearButton) {
+            this.clearButton.addEventListener('click', () => {
+                this.searchInput.value = '';
+                this.clearButton.classList.add('hidden');
+                this.transactionContainer.innerHTML = '';
+                if (this.walletAddressDisplay) {
+                    this.walletAddressDisplay.classList.add('hidden');
+                }
+                this.searchInput.focus();
+            });
+
+            // Show/hide clear button based on input content
+            this.searchInput.addEventListener('input', () => {
+                this.clearButton.classList.toggle('hidden', !this.searchInput.value);
+            });
+        }
     }
 
     async resolveSuiNSDomain(domain) {
